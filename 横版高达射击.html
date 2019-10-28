@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>横版高达射击</title>
+    <script type="text/javascript" src="js/game_ground.js"></script>
+    <script type="text/javascript" src="js/game_background.js"></script>
+    <script type="text/javascript" src="js/crash.js"></script>
+    <script type="text/javascript" src="js/game_player.js"></script>
+    <script type="text/javascript" src="js/game_cannon.js"></script>
+    <script type="text/javascript" src="js/game_cannon2.js"></script>
+    <script type="text/javascript" src="js/game_enemy1.js"></script>
+    <script type="text/javascript" src="js/game_enemy2.js"></script>
+    <script type="text/javascript" src="js/game_enemy3.js"></script>
+    <script type="text/javascript" src="js/game_enemy4.js"></script>
+    <script type="text/javascript" src="js/player_bullet1.js"></script>
+    <script type="text/javascript" src="js/player_bullet2.js"></script>
+    <script type="text/javascript" src="js/cannon_bullet1.js"></script>
+    <script type="text/javascript" src="js/cannon_bullet2.js"></script>
+    <script type="text/javascript" src="js/enemy_bullet1.js"></script>
+    <script type="text/javascript" src="js/enemy_bullet2.js"></script>
+    <script type="text/javascript" src="js/enemy_bullet3.js"></script>
+    <script type="text/javascript" src="js/enemy_bullet4.js"></script>
+    <script type="text/javascript" src="js/break.js"></script>
+    <script type="text/javascript" src="js/score.js"></script>
+    <script type="text/javascript" src="js/hp.js"></script>
+    <script type="text/javascript" src="js/gameover.js"></script>
+    <script type="text/javascript" src="js/item1.js"></script>
+    <style>
+        body {
+            position: relative;
+            background: url(images/bg.jpg);
+            background-size: cover;
+            background-position: center center;
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            border: 1px solid #333;
+            top:30px;
+            left:50%;
+            margin-left: -450px;
+        }
+
+        #gamestart{
+            position: absolute;
+            width:851px;
+            height: 853px;
+            top:30px;
+            left:50%;
+            margin-left: -450px;
+            background: url(images/timg.jpg);
+            background-size: cover;
+            z-index: 100;
+        }
+
+        .bgm {
+            position: absolute;
+            display: block;
+            width: 180px;
+            height: 50px;
+            left: 50%;
+            top: 5px;
+            margin-left: -90px;
+        }
+
+        #kira_start {
+            position: absolute;
+            display: block;
+            width: 180px;
+            height: 50px;
+            left: 50%;
+            top: 60px;
+            margin-left: -90px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="gamestart"></div>
+    <canvas id="mycanvas" width="851" height="853"></canvas>
+    <div class="outer">
+        <audio id="kira_start" src="audio/Kira_20191026003129.mp3"></audio>
+        <audio id="bean1" src="audio/光束步枪1.mp3"></audio>
+        <audio id="bean2" src="audio/光束步枪2.mp3"></audio>
+        <audio id="bean3" src="audio/炮塔射击.mp3"></audio>
+        <audio id="bean4" src="audio/炮塔射击2.mp3"></audio>
+        <audio id="bean5" src="audio/实弹1.mp3"></audio>
+        <audio id="bean6" src="audio/实弹2.mp3"></audio>
+        <audio id="bean7" src="audio/实弹3.mp3"></audio>
+        <audio id="boom1" src="audio/爆炸1.mp3"></audio>
+        <audio id="boom2" src="audio/爆炸2.mp3"></audio>
+        <audio id="boom3" src="audio/爆炸3.mp3"></audio>
+        <audio id="boom4" src="audio/爆炸4.mp3"></audio>
+        <audio id="boom5" src="audio/爆炸5.mp3"></audio>
+        <audio id="boom6" src="audio/爆炸6.mp3"></audio>
+        <audio id="boom7" src="audio/爆炸7.mp3"></audio>
+        <audio id="boom8" src="audio/爆炸8.mp3"></audio>
+        <audio id="boom9" src="audio/爆炸9.mp3"></audio>
+        <audio id="cure" src="audio/治愈.mp3"></audio>
+        <!-- <audio class="bgm" src="audio/1.mp3" l></audio> -->
+        <audio class="athlan" src="audio/阿斯兰出击.mp3"></audio>
+    </div>
+</body>
+
+</html>
+<script>
+    // 得到画布
+    var mycanvas = document.getElementById('mycanvas');
+    // 创建上下文，这个上下文和咱们学的this无关，只不过同名
+    // 画布，打点调用getContext()，得到上下文，里面写2d平面
+    var context = mycanvas.getContext('2d');
+
+    //-------------------------------------------------------------
+    //                      图片加载器
+    //-------------------------------------------------------------
+
+    // 做一个图片对象
+    var R = {
+        'background': 'images/sand_background.png',
+        'ground': 'images/sand_ground.png',
+        'sun': 'images/sun.png',
+        'cloud': 'images/cloud.png',
+        'mycannon1': 'images/mycannon1.png',
+        'mycannon2': 'images/mycannon2.png',
+        'player1': 'images/player1.png',
+        'player2': 'images/player2.png',
+        'enemy1': 'images/zaku2.png',
+        'enemy2': 'images/ginn.png',
+        'enemy3': 'images/duel.png',
+        'enemy4': 'images/dinn.png',
+        'enemy5': 'images/aegis.png',
+        'bullet_p1': 'images/bullet_p1.png',
+        'bullet_p2': 'images/bullet_p2.png',
+        'bullet_p3': 'images/bullet_p3.png',
+        'bullet_c1': 'images/bullet_c1.png',
+        'bullet_c2': 'images/bullet_e1.png',
+        'bullet_e1': 'images/bullet_c2.png',
+        'bullet_e2': 'images/bullet_e1.png',
+        'bullet_e3': 'images/bullet_e1.png',
+        'bullet_e4': 'images/bullet_e4.png',
+        'exp': 'images/exp.png',
+        'hp_3': 'images/hp3.png',
+        '0': 'images/0.png',
+        '1': 'images/1.png',
+        '2': 'images/2.png',
+        '3': 'images/3.png',
+        '4': 'images/4.png',
+        '5': 'images/5.png',
+        '6': 'images/6.png',
+        '7': 'images/7.png',
+        '8': 'images/8.png',
+        '9': 'images/9.png',
+        'jiangpai': 'images/jiangpai2.png',
+        'Kira_Yamato': 'images/Kira_yamato.png',
+        'xue':'images/xue.png',
+        'item1':'images/hp2.png',
+        'gameover':'images/gameover.png',
+        'restart':'images/restart.png',
+    };
+    // 已经加载完毕的图片数量
+    var count = 0;
+    // 图片总数，就是R这个对象键的个数，固定写法
+    var allnumber = Object.keys(R).length;
+    // 遍历这个图片对象
+    for (var k in R) {
+        // 写IIFE的目的是将全局变量变为局部变量
+        (function (k) {
+            var image = new Image();
+            image.src = R[k];
+            // 当某一张图片加载完毕后
+            image.onload = function () {
+                // 计数
+                count++;
+                // 显示在画布上
+                context.font = '30px 宋体';
+                // 居中
+                context.textAlign = 'center';
+                // 清屏
+                context.clearRect(0, 0, 600, 400);
+                // 显示
+                context.fillText('正在加载资源' + count + '/' + allnumber + '，请稍后', mycanvas.width / 2, mycanvas.height / 2);
+                // 图片加载好了之后，就要把R这个对象的值，变为image对象。
+                // 为什么要变？？方便后面使用。
+                R[k] = image;
+                // 加载完每张图片之后，都要问一句，全部都加载完了么？？
+                if (count === allnumber) {
+                    var gamestart=document.getElementById('gamestart');
+                    gamestart.onclick=function(){
+                        gamestart.style.display='none';
+                        start();
+                        mp31.play()
+                        setTimeout(function(){
+                            mp32.play()
+                        },1000)
+                    }
+                    // start();
+                }
+            }
+        })(k)
+    }
+    // ----------------------------------------------
+    //                  全局变量
+    // ----------------------------------------------
+    // 帧编号
+    var f = 0;
+    var myGround = new Ground();
+    var myBackround = new Background();
+    var thescore = new Score();
+    var myPlayer = new Player();
+    var arr_enemy1 = [];
+    var arr_enemy2 = [];
+    var arr_enemy3 = [];
+    var arr_enemy4 = [];
+    var arr_b1 = [];
+    var arr_b2 = [];
+    var arr_b3 = [];
+    var arr_b4 = [];
+    var arr_b5 = [];
+    var arr_b6 = [];
+    var arr_b7 = [];
+    var arr_b8 = [];
+    var explode = [];
+    var arr_cannon1 = [];
+    var arr_cannon2 = [];
+    var myScore = 0;
+    var thescore = new Score();
+    var myHp = 300;
+    var theHp = new Hp();
+    var arr_item1 = [];
+    var mp31 = new Audio("audio/1.mp3");
+        mp31.loop=true;
+    var mp32 = new Audio("audio/Kira_20191026003129.mp3");
+   
+    var changjing = '游戏中';
+    // ----------------------------------------------
+    //                  定时器
+    // ----------------------------------------------
+    function start() {
+        new Cannon1();
+        new Cannon2();
+        // 定时器，注意一定只有一个定时器
+        setInterval(function () {
+            // 清屏
+            context.clearRect(0, 0, mycanvas.width, mycanvas.height);
+            // 帧编号加1
+            f++;
+            if (f % 150 == 0){
+                new Cannon1();
+            };
+            if (f % 150 == 0){
+                new Cannon2();
+            };
+            if (f % 40 == 0){
+                new Enemy1();
+            };
+            if (f % 60 == 0){
+                new Enemy2();
+            };
+            if (f % 250 == 0){
+                new Enemy3();
+            }
+            if (f % 350 == 0){
+
+                new Enemy4();
+            }
+            if (f % 600 == 0){
+                new Item1();
+            }
+
+            if (changjing == '游戏中') {
+                myPlayer.update();
+                myBackround.update();
+                myGround.update();
+                for (var j = 0; j < arr_cannon1.length; j++) {
+                    arr_cannon1[j].update();
+                };
+                for (var j = 0; j < arr_cannon2.length; j++) {
+                    arr_cannon2[j].update();
+                };
+                for (var j = 0; j < arr_enemy1.length; j++) {
+                    arr_enemy1[j].update();
+                };
+                for (var j = 0; j < arr_enemy2.length; j++) {
+                    arr_enemy2[j].update();
+                };
+                for (var j = 0; j < arr_enemy3.length; j++) {
+                    arr_enemy3[j].update();
+                };
+                for (var j = 0; j < arr_enemy4.length; j++) {
+                    arr_enemy4[j].update();
+                };
+                for (var j = 0; j < arr_item1.length; j++) {
+                    arr_item1[j].update();
+                };                          
+                
+            }
+            if (changjing == '游戏中' || changjing == '死亡') {
+                // 背景
+                
+                myBackround.render();
+
+                // 地
+                
+                myGround.render();
+
+                // 炮台1
+                for (var j = 0; j < arr_cannon1.length; j++) {
+                    arr_cannon1[j] && arr_cannon1[j].render();
+                };
+                // 炮台2
+                for (var j = 0; j < arr_cannon2.length; j++) {
+                    arr_cannon2[j] && arr_cannon2[j].render();
+                };
+                // 玩家
+                myPlayer.render();
+                // 敌人1
+                for (var j = 0; j < arr_enemy1.length; j++) {
+                    arr_enemy1[j] && arr_enemy1[j].render();
+                };
+                // 敌人2
+                for (var j = 0; j < arr_enemy2.length; j++) {
+                    arr_enemy2[j] && arr_enemy2[j].render();
+                };
+                // 敌人3
+                for (var j = 0; j < arr_enemy3.length; j++) {
+                    arr_enemy3[j] && arr_enemy3[j].render();
+                };
+                // 敌人4
+                for (var j = 0; j < arr_enemy4.length; j++) {
+                    arr_enemy4[j] && arr_enemy4[j].render();
+                };
+                // 子弹1
+                for (var j = 0; j < arr_b1.length; j++) {
+                    arr_b1[j].update();
+                    arr_b1[j] && arr_b1[j].render();
+                };
+
+                // 子弹2
+                for (var j = 0; j < arr_b2.length; j++) {
+                    arr_b2[j].update();
+                    arr_b2[j] && arr_b2[j].render();
+                };
+
+                // 子弹3
+                for (var j = 0; j < arr_b3.length; j++) {
+                    arr_b3[j].update();
+                    arr_b3[j] && arr_b3[j].render();
+                };
+
+                // 子弹4
+                for (var j = 0; j < arr_b4.length; j++) {
+                    arr_b4[j].update();
+                    arr_b4[j] && arr_b4[j].render();
+                };
+                
+                // 子弹5
+                for (var j = 0; j < arr_b5.length; j++) {
+                    arr_b5[j].update();
+                    arr_b5[j] && arr_b5[j].render();
+                };
+                
+                // 子弹6
+                for (var j = 0; j < arr_b6.length; j++) {
+                    arr_b6[j].update();
+                    arr_b6[j] && arr_b6[j].render();
+                };
+               
+                // 子弹7
+                for (var j = 0; j < arr_b7.length; j++) {
+                    arr_b7[j].update();
+                    arr_b7[j] && arr_b7[j].render();
+                };
+                // 子弹8
+                for (var j = 0; j < arr_b8.length; j++) {
+                    arr_b8[j].update();
+                    arr_b8[j] && arr_b8[j].render();
+                };
+                
+                // 道具1
+                for (var j = 0; j < arr_item1.length; j++) {
+                    arr_item1[j] && arr_item1[j].render();
+                };
+                var arr=[1,2,3];
+                console.log(arr);
+
+                // 爆炸
+                for (var j = 0; j < explode.length; j++) {
+                    explode[j].update();
+                    explode[j] && explode[j].render();
+                };
+
+                thescore.update();
+                thescore.render();
+
+                theHp.update();
+                theHp.render();
+            }
+
+
+            if (changjing == '死亡') {
+                die();
+            }
+
+            // 设置字号
+            context.font = '20px 黑体';
+            // 左对齐
+            context.textAlign = 'left';
+            // 显示文字，显示帧编号
+            context.fillText(f, 10, 20);
+        }, 30);
+    };
+    // ----------------------------------------------
+    //                  事件监听
+    // ----------------------------------------------
+
+    // var kira = document.getElementById('kira_start')
+    // setTimeout(function () {
+    //     kira.play();
+    // }, 1000);
+
+
+    document.onkeydown = function (e) {
+        switch (e.keyCode) {
+            case 87:
+                myPlayer.turn('up');
+                myPlayer.move();
+                break;
+            case 83:
+                myPlayer.turn('down');
+                myPlayer.move();
+                break;
+            case 65:
+                myPlayer.turn('left');
+                myPlayer.move();
+                break;
+            case 68:
+                myPlayer.turn('right');
+                myPlayer.move();
+                break;
+            case 97:
+                myPlayer.shoot1();
+                var bean1 = document.getElementById('bean1');
+                bean1.play();
+                break;
+            case 98:
+                myPlayer.shoot2();
+                var bean2 = document.getElementById('bean2');
+                bean2.play();
+                break;
+        }
+    }
+    document.onkeyup = function (e) {
+        switch (e.keyCode) {
+            case 87:
+            case 68:
+            case 83:
+            case 65:
+                myPlayer.stop();
+                break;
+        }
+    }
+</script>
